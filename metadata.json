@@ -1,0 +1,7 @@
+{
+  "name": "HireVoice AI - Your Personal Interview Prep",
+  "description": "An AI-powered voice assistant that simulates professional job interviews based on your CV and job description, providing real-time conversation and post-interview analysis.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
