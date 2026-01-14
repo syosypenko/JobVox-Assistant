@@ -62,12 +62,22 @@ const App: React.FC = () => {
     setStage(InterviewStage.READY);
   };
 
+  const onAnalysisReady = async (analysis: MatchAnalysis) => {
+    await saveCurrentState({ matchAnalysis: analysis });
+  };
+
   const startInterview = () => setStage(InterviewStage.IN_PROGRESS);
 
   const endInterview = async (finalTranscript: TranscriptionEntry[]) => {
     setTranscript(finalTranscript);
     await saveCurrentState({ transcript: finalTranscript });
     setStage(InterviewStage.FEEDBACK);
+  };
+
+  const restartInterview = () => {
+    setFeedback(null); // Clear old feedback so it regenerates
+    setTranscript([]);
+    setStage(InterviewStage.READY);
   };
 
   const loadSession = (session: SavedInterview) => {
@@ -105,7 +115,7 @@ const App: React.FC = () => {
         {stage === InterviewStage.INPUT && <InputPhase onSubmit={startAnalysis} />}
         
         {stage === InterviewStage.PREPARING && (
-          <AnalysisPhase data={interviewData} onComplete={onAnalysisComplete} />
+          <AnalysisPhase data={interviewData} onComplete={onAnalysisComplete} onAnalysisReady={onAnalysisReady} />
         )}
 
         {stage === InterviewStage.READY && (
@@ -140,7 +150,7 @@ const App: React.FC = () => {
             transcript={transcript} 
             jobDescription={interviewData.jobDescription}
             existingFeedback={feedback}
-            onRestart={() => setStage(InterviewStage.READY)}
+            onRestart={restartInterview}
             onHistory={() => setStage(InterviewStage.HISTORY)}
             onSaveFeedback={(f) => {
               setFeedback(f);

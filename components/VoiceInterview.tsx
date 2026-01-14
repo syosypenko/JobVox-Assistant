@@ -127,9 +127,16 @@ const VoiceInterview: React.FC<Props> = ({ data, onEnd }) => {
               const assistantText = currentTranscriptionRef.current.assistant.trim();
               const userText = currentTranscriptionRef.current.user.trim();
               
+              // Filter out noise: only add if meaningful length (>5 chars) and not just punctuation/numbers
+              const isValidText = (text: string): boolean => {
+                if (text.length < 5) return false; // Too short, likely noise
+                const cleaned = text.replace(/[^a-zA-Z0-9\s]/g, '').trim();
+                return cleaned.length > 3; // At least a few meaningful chars
+              };
+              
               const newEntries: TranscriptionEntry[] = [];
-              if (userText) newEntries.push({ role: 'user', text: userText, timestamp: Date.now() });
-              if (assistantText) newEntries.push({ role: 'assistant', text: assistantText, timestamp: Date.now() });
+              if (isValidText(userText)) newEntries.push({ role: 'user', text: userText, timestamp: Date.now() });
+              if (isValidText(assistantText)) newEntries.push({ role: 'assistant', text: assistantText, timestamp: Date.now() });
               
               if (newEntries.length > 0) {
                 transcriptRef.current = [...transcriptRef.current, ...newEntries];
@@ -196,13 +203,19 @@ const VoiceInterview: React.FC<Props> = ({ data, onEnd }) => {
               CV: ${data.cvText}
               Job Description: ${data.jobDescription}
               
-              Guidelines:
-              1. Be encouraging but professional.
-              2. Ask one question at a time.
-              3. Wait for the user to finish before asking the next question.
-              4. Follow up on user's specific skills mentioned in their CV.
-              5. Total interview should be around 5-8 questions.
-              6. Start with a brief intro and ask the user to introduce themselves.`
+              CRITICAL LISTENING GUIDELINES:
+              1. ALWAYS wait for the user to fully complete their answer before responding.
+              2. After the user finishes speaking, wait 2-3 seconds of silence before you respond.
+              3. Do NOT interrupt the user mid-sentence under any circumstances.
+              4. Listen carefully to the entire response, even if it's long.
+              5. Only speak after you are absolutely certain the user has finished.
+              6. Be encouraging but professional.
+              7. Ask one clear question at a time.
+              8. Follow up on user's specific skills mentioned in their CV.
+              9. Total interview should be around 5-8 questions.
+              10. Start with a brief intro and ask the user to introduce themselves.
+              
+              Remember: Good listening is more important than quick responses.`
             }]
           }
         }

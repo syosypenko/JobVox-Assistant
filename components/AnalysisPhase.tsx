@@ -6,9 +6,10 @@ import { InterviewData, MatchAnalysis } from '../types';
 interface Props {
   data: InterviewData;
   onComplete: (analysis: MatchAnalysis) => void;
+  onAnalysisReady?: (analysis: MatchAnalysis) => void;
 }
 
-const AnalysisPhase: React.FC<Props> = ({ data, onComplete }) => {
+const AnalysisPhase: React.FC<Props> = ({ data, onComplete, onAnalysisReady }) => {
   const [analysis, setAnalysis] = useState<MatchAnalysis | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -18,13 +19,16 @@ const AnalysisPhase: React.FC<Props> = ({ data, onComplete }) => {
         const res = await getMatchAnalysis(data);
         setAnalysis(res);
         setLoading(false);
+        if (onAnalysisReady) {
+          onAnalysisReady(res);
+        }
       } catch (err) {
         console.error(err);
         // Fallback or retry
       }
     };
     run();
-  }, [data]);
+  }, [data, onAnalysisReady]);
 
   if (loading) {
     return (
